@@ -1,0 +1,12 @@
+server {
+    listen       <%= @nginx_port %>;
+    server_name  localhost;
+
+  location /jenkins {
+        proxy_pass      http://localhost:<%= @jenkins_port %>;
+    }
+
+    location /mntlab {
+        proxy_pass      http://localhost:<%= @tomcat_port %>/mnt-lab/;
+    }
+}

@@ -1,0 +1,19 @@
+asseptense test - test for buisness reqiests
+unit testint - code logic checking
+kitchen, audit mod chefclient --audit mode, inspect
+lint test- code style check "" and tabs and spaces => test foodcritic
+chef complines-security tests
+
+написать контрол группы
+порт дженсинса => 200ок 
+22 port opeenned
+jenkins process 1 
+через китчен или через аудит мод
+
+система документации
+
+install yard sheff - generate doc
+
+
+chef analytics - анализ каждой ноды сервераб каждое изменение нод
+chef automate - постройка релиз процесса. девелопмент юнит асептанс секурити, стейжингб продакшн-асептанс

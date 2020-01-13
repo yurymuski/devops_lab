@@ -1,0 +1,10 @@
+name 'web'
+maintainer 'yury muski'
+maintainer_email 'you@example.com'
+license 'all_rights'
+description 'Installs/Configures web'
+long_description 'Installs/Configures web'
+version '0.1.0'
+
+depends 'web_nginx'
+depends 'web_apache'

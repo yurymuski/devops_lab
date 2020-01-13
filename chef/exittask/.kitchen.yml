@@ -1,0 +1,19 @@
+---
+driver:
+  name: vagrant
+
+provisioner:
+  name: chef_solo
+
+platforms:
+  - name: centos-6.7-x86_64
+
+suites:
+  - name: default
+    cookbook 'jenkins', path: '/home/Student/chef/task5/chef/cookbooks/jenkins'
+    run_list:
+      - recipe[jenkins::default]
+    attributes: 
+      tomcat_port: 10100,
+      jenkins_port: 9090,
+      nginx_port: 8080
