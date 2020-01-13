@@ -1,0 +1,49 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# All Vagrant configuration is done below. The "2" in Vagrant.configure
+# configures the configuration version (we support older styles for
+# backwards compatibility). Please don't change it unless you know what
+# you're doing.
+Vagrant.configure("2") do |config|
+# https://docs.vagrantup.com.
+
+
+	config.vm.define "vm1" do |vm1|
+		vm1.vm.hostname = "VM1"
+		vm1.vm.box = "vagrant-centos-6.7-x86_64"
+		vm1.vm.network "private_network", ip: "192.168.25.210"
+		vm1.vm.network "forwarded_port", guest: 80, host: 8080
+		vm1.vm.provider "virtualbox" do |machine|
+	machine.name = "httpd"
+	machine.cpus = 1
+	machine.memory = 512
+
+end
+		vm1.vm.provision "shell", path: "web.sh" 
+end
+
+        config.vm.define "vm2" do |vm2|
+                vm2.vm.hostname = "VM2"
+                vm2.vm.box = "vagrant-centos-6.7-x86_64"
+                vm2.vm.network "private_network", ip: "192.168.25.211"
+                vm2.vm.provider "virtualbox" do |machine|
+        machine.name = "tomcat"
+	machine.customize ["modifyvm", :id, "--cpuexecutioncap", "35"]
+        machine.memory = 1024
+
+end
+                vm2.vm.provision "shell", path: "app.sh"
+end
+
+
+
+
+config.vm.provision "shell", inline: "sudo yum install -y nano"
+config.vm.synced_folder "sources/", "/home/sources",
+owner: "vagrant", group: "vagrant",
+create:true
+
+
+
+end
