@@ -1,0 +1,38 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# All Vagrant configuration is done below. The "2" in Vagrant.configure
+# configures the configuration version (we support older styles for
+# backwards compatibility). Please don't change it unless you know what
+# you're doing.
+Vagrant.configure("2") do |config|
+
+	config.vm.define "puppet" do |puppet|
+		puppet.vm.hostname = "puppet"
+		puppet.vm.box = "centos/7"
+		puppet.vm.network "private_network", ip: "192.168.25.150"
+		puppet.vm.provider "virtualbox" do |machine|
+	machine.name = "puppet"
+	machine.cpus = 2
+	machine.memory = 4096
+end
+end
+
+	config.vm.define "node1" do |node1|
+		node1.vm.hostname = "node1"
+		node1.vm.box = "centos/7"
+		node1.vm.network "private_network", ip: "192.168.25.102"
+		node1.vm.provider "virtualbox" do |machine|
+	machine.name = "node1"
+	machine.memory = 512
+end
+end
+
+
+config.vm.provision "shell", inline: "yum install -y epel-release"
+config.vm.provision "shell", inline: "yum install -y java puppet nano vim"
+#config.vm.provision "shell", inline: "setenforce permissive"
+config.vm.provision "shell", inline: "puppet apply -e 'include exittask' --modulepath=/vagrant"
+
+
+end
