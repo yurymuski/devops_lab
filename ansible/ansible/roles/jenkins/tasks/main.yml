@@ -1,0 +1,41 @@
+---
+# tasks file for jenkins
+- debug: msg="Will install Jenkins"
+- name: Install git
+  yum: name=git state=latest
+- name: Jenkins repo
+  command: wget -O /etc/yum.repos.d/jenkins.repo http://pkg.jenkins-ci.org/redhat/jenkins.repo
+- name: Jenkins rpm
+  command: rpm --import https://jenkins-ci.org/redhat/jenkins-ci.org.key
+- name: Jenkins install
+  yum: name=jenkins state=latest
+
+- debug: msg="Will config Jenkins"
+- name: Jenkins config global
+  replace: 
+   dest=/etc/sysconfig/jenkins
+   regexp={{item.regexp}}
+   replace={{item.replace}}
+  with_items:
+   - {regexp: 'JENKINS_ARGS=""', replace: 'JENKINS_ARGS="--prefix=/jenkins"'}
+   - {regexp: 'JENKINS_PORT="8080"', replace: 'JENKINS_PORT="{{ jenkins_port }}"'}
+   - {regexp: 'JENKINS_JAVA_OPTIONS="-Djava.awt.headless=true"', replace: 'JENKINS_JAVA_OPTIONS="-Djava.awt.headless=true -Djenkins.install.runSetupWizard=false"'}
+- name: Jenkins config
+  template: src={{item}} dest=/var/lib/jenkins/ force=yes
+  with_items:
+   - config.xml
+   - hudson.tasks.Maven.xml
+- name: Jenkins jobs
+  copy: src=jobs dest=/var/lib/jenkins/ force=no
+- name: Jenkins plugins
+  copy: src=plugins dest=/var/lib/jenkins/ force=no
+- name: Jenkins sudo
+  copy: src=jenkins-user dest=/etc/sudoers.d/ force=no
+
+- name: Jenkins chown 
+  file: path=/var/lib/jenkins owner=jenkins group=jenkins state=directory recurse=yes
+
+
+- debug: msg="Will start Jenkins"
+- name: starting jenkins
+  service: name=jenkins state=running

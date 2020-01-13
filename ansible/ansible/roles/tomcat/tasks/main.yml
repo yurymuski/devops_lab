@@ -1,0 +1,14 @@
+---
+# tasks file for tomcat
+- debug: msg="Will install & start Tomcat"
+- name: Tomcat install
+  yum: name=tomcat state=latest
+- name: tomcat-webapps install
+  yum: name=tomcat-webapps state=latest
+- name: Tomcat config
+  replace: 
+    dest=/etc/tomcat/server.xml
+    regexp='port="8080"'
+    replace='port="{{ tomcat_port }}"'
+- name: Tomcat starting
+  service: name=tomcat state=running

@@ -1,0 +1,12 @@
+---
+# tasks file for web
+- debug: msg="Will install & start Nginx"
+- name: Nginx repo install
+  yum: name=http://nginx.org/packages/centos/6/noarch/RPMS/nginx-release-centos-6-0.el6.ngx.noarch.rpm
+- name: Nginx install
+  yum: name=nginx state=latest
+- name: Nginx config
+  template: src=virt.conf dest=/etc/nginx/conf.d/virt.conf
+- name: starting nginx
+  service: name=nginx state=running
+
