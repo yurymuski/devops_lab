@@ -1,0 +1,54 @@
+---
+# tasks file for zabbix
+- debug: msg="Will install & start zabbix"
+- name: zabbix repo
+  yum: name=http://repo.zabbix.com/zabbix/2.2/rhel/6/x86_64/zabbix-release-2.2-1.el6.noarch.rpm state=present
+- name: zabbix install
+  yum: name={{item}} state=latest
+  with_items:
+   - zabbix
+   - zabbix-server
+   - zabbix-server-mysql
+   - zabbix-web-mysql
+   - zabbix-agent
+- name: Create DB zabbix
+  mysql_db:
+    name: zabbix
+    encoding: utf8
+    collation: utf8_bin
+    state: present  
+- name: Create user zabbix
+  mysql_user: name=zabbix password=zabbix priv=zabbix.*:ALL,GRANT state=present
+- name: configuring mysql zabbix
+  shell: mysql -uroot zabbix < {{ item }}
+  with_items:
+   - schema.sql
+   - images.sql
+   - data.sql
+  args:
+    chdir: /usr/share/doc/zabbix-server-mysql-2.2.14/create/
+- name: zabbix server.conf
+  replace: 
+   dest=/etc/zabbix/zabbix_server.conf
+   regexp={{item.regexp}}
+   replace={{item.replace}}
+  with_items:
+   - {regexp: '# DBHost=localhost', replace: 'DBHost=localhost'}
+   - {regexp: '# DBPassword=', replace: 'DBPassword={{ dbpassword }}'}
+- name: editing httpd zabbix.conf
+  replace: 
+   dest=/etc/httpd/conf.d/zabbix.conf
+   regexp='# php_value date.timezone Europe/Riga'
+   replace='php_value date.timezone Europe/Minsk'
+- name: editing httpd.conf
+  replace: 
+   dest=/etc/httpd/conf/httpd.conf
+   regexp='DocumentRoot "/var/www/html"'
+   replace='DocumentRoot /usr/share/zabbix'
+- name: Start zabbix-server
+  service: name=zabbix-server state=started enabled=yes
+- name: Start zabbix-agent
+  service: name=zabbix-agent state=started enabled=yes
+- name: Start httpd
+  service: name=httpd state=started enabled=yes
+
