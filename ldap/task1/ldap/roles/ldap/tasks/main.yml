@@ -1,0 +1,60 @@
+---
+# tasks file for ldap
+- debug: msg="Will install & start ldap"
+- name: ldap install
+  yum: name={{item}} state=latest
+  with_items:
+   - openldap-servers
+   - openldap-clients
+- name: copy DB_CONFIG
+  command: cp /usr/share/openldap-servers/DB_CONFIG.example /var/lib/ldap/DB_CONFIG 
+- name: ldap folder chown 
+  file: path=/var/lib/ldap owner=ldap group=ldap recurse=yes
+- stat: path=/etc/openldap/slapd.d
+  register: st
+- name: slapd.d backup
+  file: src=/etc/openldap/slapd.d dest=/etc/openldap/slapd.d.original recurse=yes state=directory force=yes
+  when: st.stat.exists
+
+- name: slapd.d remove
+  file: path=/etc/openldap/slapd.d state=absent
+- name: slapd config
+  template: src=slapd.conf dest=/etc/openldap/slapd.conf force=yes
+- name: slapd check
+  command: slaptest -u
+  register: slaptest
+- debug: msg="{{ slaptest.stdout }}"
+- name: ldap folder shown 
+  file: path=/var/lib/ldap owner=ldap group=ldap recurse=yes
+- name: slapd starting
+  service: name=slapd state=running
+- name: slapcat
+  command: slapcat
+
+- debug: msg="Initialize OpenLDAP DataBase"
+- name: creating ldap-init.ldif
+  template: src=ldap-init.ldif dest=/etc/openldap/ldap-init.ldif force=yes
+
+- name: slappasswd
+  command: ldapadd -x -D "cn=admin,dc=mnt,dc=lab" -w "{{ ldaprootpass }}" -f /etc/openldap/ldap-init.ldif
+  register: ldapadd
+- debug: msg="{{ ldapadd.stdout }}"
+
+- name: ldapsearch
+  command: ldapsearch -h localhost -D "cn=admin,dc=mnt,dc=lab" -w "{{ ldaprootpass }}" -b "dc=mnt,dc=lab" -s sub "objectclass=*"
+  register: ldapsearch
+- debug: msg="{{ ldapsearch.stdout }}"
+
+- name: creating ldap-userinldap.ldif
+  template: src=ldap-userinldap.ldif dest=/etc/openldap/ldap-userinldap.ldif force=yes
+- name: ldap-userinldap.ldif
+  command: ldapadd -x -D "cn=admin,dc=mnt,dc=lab" -w "{{ ldaprootpass }}" -f /etc/openldap/ldap-userinldap.ldif
+  register: userinldap
+- debug: msg="{{ userinldap.stdout }}"
+
+- name: creating ldap-ymuski.ldif
+  template: src=ldap-ymuski.ldif dest=/etc/openldap/ldap-ymuski.ldif force=yes
+- name: ldap-ymuski.ldif
+  command: ldapadd -x -D "cn=admin,dc=mnt,dc=lab" -w "{{ ldaprootpass }}" -f /etc/openldap/ldap-ymuski.ldif
+  register: ymuski
+- debug: msg="{{ ymuski.stdout }}"

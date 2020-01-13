@@ -1,0 +1,27 @@
+# userinldap, Groups, mnt.lab
+dn: cn=userinldap,ou=Groups,dc=mnt,dc=lab
+cn: userinldap
+gidNumber: 10500
+objectClass: posixGroup
+objectClass: top
+memberUid: userinldap
+
+# userinldap, People, mnt.lab
+dn: uid=userinldap,ou=People,dc=mnt,dc=lab
+uid: userinldap
+homeDirectory: /home/userinldap
+loginShell: /bin/bash
+mail: userinldap@local
+uidNumber: 10500
+gidNumber: 10500
+gecos: User In LDAP
+cn: User In LDAP
+givenName: User
+sn: InLDAP
+objectClass: top
+objectClass: posixAccount
+objectClass: shadowAccount
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: person
+userPassword: password

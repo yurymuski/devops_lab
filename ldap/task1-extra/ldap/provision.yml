@@ -1,0 +1,30 @@
+- name: Provision with Ansible
+  hosts: all
+  remote_user: root
+  become: yes
+
+  pre_tasks:
+  - debug: msg="Let's do this"
+
+  roles:
+  - ldap
+  - phpadmin
+
+  vars_prompt:
+  - name: "ldaprootpass"
+    prompt: "Enter password"
+    private: yes
+
+  vars:
+  - user:
+     cn: ymuski2
+     gid: 10556
+     uid: ymuski2
+     homedir: /home/ymuski2
+     shell: /bin/bash
+     mail: some@ma.il
+     uidN: 10556
+     Fname: yury
+     Sname: muski
+     pass: password
+

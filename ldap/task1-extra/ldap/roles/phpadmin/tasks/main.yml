@@ -1,0 +1,26 @@
+---
+# tasks file for phpLDAPadmin
+- debug: msg="Will install & start phpLDAPadmin"
+- name: phpLDAPadmin install
+  yum: name={{item}} state=present
+  with_items:
+   - phpldapadmin
+   - httpd
+   - php-xml
+- name: phpldapadmin.conf
+  replace: 
+   dest=/etc/httpd/conf.d/phpldapadmin.conf
+   regexp={{item.regexp}}
+   replace={{item.replace}}
+  with_items:
+   - {regexp: 'Deny from all', replace: 'Allow from 192.168.25.1'}
+   - {regexp: 'Order Deny,Allow', replace: 'Order Allow,Deny'}
+   - {regexp: 'Require local', replace: 'Require all granted'}
+- name: phpldapadmin/config.php
+  copy: src=config.php dest=/etc/phpldapadmin/config.php force=yes
+- name: Start httpd
+  service: name=httpd state=restarted enabled=yes
+- name: curl
+  uri: url=http://localhost/ldapadmin/
+
+

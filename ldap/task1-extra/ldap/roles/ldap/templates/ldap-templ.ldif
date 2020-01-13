@@ -1,0 +1,27 @@
+# userinldap, Groups, mnt.lab
+dn: cn={{ user.cn }},ou=Groups,dc=mnt,dc=lab
+cn: {{ user.cn }}
+gidNumber: {{ user.gid }}
+objectClass: posixGroup
+objectClass: top
+memberUid: {{ user.uid }}
+
+# userinldap, People, mnt.lab
+dn: uid={{ user.uid }},ou=People,dc=mnt,dc=lab
+uid: {{ user.uid }}
+homeDirectory: {{ user.homedir }}
+loginShell: {{ user.shell }}
+mail: {{ user.mail }}
+uidNumber: {{ user.uidN }}
+gidNumber: {{ user.gid }}
+gecos: User In LDAP
+cn: User In LDAP
+givenName: {{ user.Fname }}
+sn: {{ user.Sname }}
+objectClass: top
+objectClass: posixAccount
+objectClass: shadowAccount
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: person
+userPassword: {{ user.pass }}

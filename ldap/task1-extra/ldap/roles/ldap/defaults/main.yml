@@ -1,0 +1,15 @@
+---
+# defaults file for ldap
+ldaprootpass: password
+user:
+ cn: userinldap
+ gid: 10500
+ uid: userinldap
+ homedir: /home/userinldap
+ shell: /bin/bash
+ mail: userinldap@local
+ uidN: 10500
+ Fname: User
+ Sname: InLDAP
+ pass: password
+

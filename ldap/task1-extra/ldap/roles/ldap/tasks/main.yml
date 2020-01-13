@@ -1,0 +1,64 @@
+---
+# tasks file for ldap
+- debug: msg="Will install & start ldap"
+
+- name: ldap install
+  yum: name={{item}} state=latest
+  with_items:
+   - openldap-servers
+   - openldap-clients
+- name: copy DB_CONFIG
+  copy: src=DB_CONFIG.example dest=/var/lib/ldap/DB_CONFIG force=no
+- name: ldap folder chown 
+  file: path=/var/lib/ldap owner=ldap group=ldap recurse=yes
+- name: slapd.d backup
+  copy: src=slapd.d dest=/etc/openldap/slapd.d.original force=no
+- name: slapd.d remove
+  file: path=/etc/openldap/slapd.d state=absent
+- name: slappasswd
+  expect:
+    command: /bin/bash -c "slappasswd > /tmp/hash.txt"
+    responses:
+      (?i)password: "{{ ldaprootpass }}"
+- name: cat hash
+  command: cat /tmp/hash.txt
+  register: hash
+# Can be used but lookup reads file only on local pc
+#  vars:
+#     hash: "{{ lookup('file', '/tmp/hash.txt') }}"
+- name: slapd config
+  template: src=slapd.conf dest=/etc/openldap/slapd.conf force=yes
+- name: slapd check
+  command: slaptest -u
+  register: slaptest
+- name: ldap folder shown 
+  file: path=/var/lib/ldap owner=ldap group=ldap recurse=yes
+- name: slapd starting
+  service: name=slapd state=restarted enabled=yes
+- name: slapcat
+  command: slapcat
+  ignore_errors: yes
+
+- debug: msg="Initialize OpenLDAP DataBase"
+
+- name: creating ldap-init.ldif
+  copy: src=ldap-init.ldif dest=/etc/openldap/ldap-init.ldif force=no
+- name: ldapadd admin
+  expect:
+    command: ldapadd -x -D "cn=admin,dc=mnt,dc=lab" -W -f /etc/openldap/ldap-init.ldif
+    responses:
+      (?i)password: "{{ ldaprootpass }}"
+  ignore_errors: yes
+
+
+- debug: msg="Adding custom user"
+
+- name: creating ldap-templ.ldif
+  template: src=ldap-templ.ldif dest=/etc/openldap/ldap-{{ user.cn }}.ldif force=yes
+- name: ldapadd custom user
+  expect:
+    command: ldapadd -x -D "cn=admin,dc=mnt,dc=lab" -W -f /etc/openldap/ldap-{{ user.cn }}.ldif
+    responses:
+      (?i)password: "{{ ldaprootpass }}"
+  ignore_errors: yes
+
