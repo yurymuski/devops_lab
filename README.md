@@ -8,6 +8,8 @@
 
 [LDAP](ldap/)
 
+[Python](python/)
+
 [Vagrant](vagrant/)
 
 [Zabbix](zabbix/)
