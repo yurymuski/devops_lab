@@ -14,6 +14,8 @@
 
 [Python](python/)
 
+[Ruby](ruby/)
+
 [Vagrant](vagrant/)
 
 [Zabbix](zabbix/)
