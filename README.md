@@ -2,6 +2,8 @@
 
 [Ansible](ansible/)
 
+[Chef](chef/)
+
 [Docker](docker/)
 
 [Jenkins job builder](jenkins-job-builder/)
